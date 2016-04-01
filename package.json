@@ -1,0 +1,63 @@
+{
+  "name": "yocto-load",
+  "version": "0.1.0",
+  "description": "An utility module to load on ressource based on loadtest",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "author": {
+    "name": "Yocto SAS",
+    "email": "technique@yocto.re",
+    "url": "http://www.yocto.re"
+  },
+  "contributors": [
+    {
+      "name": "BALARD Cedric",
+      "email": "cedric@yocto.re"
+    }
+  ],
+  "maintainers": [
+    {
+      "name": "BALARD Cedric",
+      "email": "cedric@yocto.re"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yoctore/yocto-load.git"
+  },
+  "keywords": [
+    "yoctopus",
+    "loadtest",
+    "test",
+    "stresstest"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=4.2.1"
+  },
+  "files": [
+  "dist",
+  "CHANGELOG.md",
+  "LICENSE-2.0.txt",
+  "README.md"
+],
+  "bugs": {
+    "url": "https://github.com/yoctore/yocto-load/issues"
+  },
+  "homepage": "https://github.com/yoctore/yocto-load#readme",
+  "dependencies": {
+    "lodash": "^4.7.0",
+    "yocto-config": "^1.6.9",
+    "yocto-logger": "1.1.3"
+  },
+  "devDependencies": {
+  "chai": "3.5.0",
+  "grunt": "~0.4.5",
+  "grunt-contrib-uglify": "1.0.1",
+  "grunt-mocha-test": "^0.12.7",
+  "mocha": "2.4.5",
+  "yocto-hint": "1.3.6"
+}
+}

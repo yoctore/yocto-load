@@ -1,0 +1,6 @@
+.DS_Store
+node_modules
+*.log
+*~
+example/bower_components
+example/node_modules
