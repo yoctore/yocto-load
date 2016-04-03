@@ -7,6 +7,7 @@ var path      = require('path');
 var Q         = require('q');
 var async     = require('async');
 var loadtest  = require('loadtest');
+var request   = require('request');
 
 /**
 * Yocto Load : test your REST API
@@ -79,14 +80,16 @@ YoctoLoad.prototype.initialize = function (pathFile) {
 
   // optional jwt
   var jwt = joi.object().optional().keys({
-    enable    : joi.boolean().required(),
-    key       : joi.string().required().empty(),
+    enable       : joi.boolean().required(),
+    key          : joi.string().required().empty(),
     // path to retrieve url
-    path      : joi.string().required().empty()
+    path         : joi.string().required().empty(),
+    refreshDelay : joi.number().integer().optional().min(0).default(30000)
   }).default({
-    enable  : false,
-    key     : null,
-    path    : null
+    enable       : false,
+    key          : null,
+    path         : null,
+    refreshDelay : null
   });
 
   // all routes to tests
@@ -118,14 +121,14 @@ YoctoLoad.prototype.initialize = function (pathFile) {
 
   // load config
   this.config.load().then(function (value) {
+    // set url of api
+    this.apiUrl = value.api.protocol + '://' + value.api.host + (_.isNull(value.api.port) ? '' :
+    (':' + value.api.port));
+
     // check if jwt is enable to start process
     if (value.jwt.enable) {
       this.jwtProcess();
     }
-
-    // set url of api
-    this.apiUrl = value.api.protocol + '://' + value.api.host + (_.isNull(value.api.port) ? '' :
-    (':' + value.api.port));
 
     // config is load so resolve value
     deferred.resolve(value);
@@ -151,20 +154,27 @@ YoctoLoad.prototype.start = function () {
   async[this.config.config.main.async ? 'each' : 'eachSeries'](this.config.config.routes,
   function (item, nextRoute) {
 
-  // console.log('\n\n ---> item : ', item);
+    // check if item is enable
     if (!item.enable) {
-      this.logger.info('[ YoctoLoad.start ] - tests is disable for route : ' + item.path);
+      this.logger.info('[ YoctoLoad.start ] -loadtests is disable for route : ' + item.path);
       return nextRoute;
-    }
-
-    // TODO : set jwt process
-    if (!_.isNull(this.jwtToken)) {
     }
 
     // object that will be sent to client
     var options = _.merge({
       url : this.apiUrl + item.path
     }, _.omit(item, [ 'enable', 'path' ]));
+
+    // TODO : set jwt process
+    if (!_.isNull(this.jwtToken)) {
+      this.logger.debug('[ YoctoLoad.start ] - x-jwt token was set into header for routes',
+      item.path);
+
+      // Set jwt header
+      options.headers = _.merge(options.headers, {
+        'x-jwt-access-token' : this.jwtToken
+      });
+    }
 
     var date = new Date();
 
@@ -218,12 +228,62 @@ YoctoLoad.prototype.start = function () {
       return deferred.reject(error);
     }
 
+    // check if jwt interval is enabled
+    if (!_.isUndefined(this.refreshTokenInterval)) {
+      // clear the interval
+      clearInterval(this.refreshTokenInterval);
+    }
     // no error occured so resolve reports
     deferred.resolve(this.reports);
   }.bind(this));
 
   // return result of this methods
   return deferred.promise;
+};
+
+/**
+ * Method that initialize an interval to retrieve jwt token
+ */
+YoctoLoad.prototype.jwtProcess = function () {
+// create url to retrieve jwt
+  var tokenRefreshUrl = this.apiUrl + this.config.config.jwt.path;
+
+  /**
+   * Default method to refresh token value
+   */
+  var refreshToken = function () {
+    // get current toekn
+    request.get(tokenRefreshUrl,
+    function (error, response, body) {
+      // has error ?
+      if (!error && response.statusCode === 200) {
+        // set jwt token
+        this.jwtToken = body;
+        // log message
+        this.logger.info('[ YoctoLoad.jwtProcess.refresh ] - refresh token succeed.');
+        // debug message
+        this.logger.debug([ '[ YoctoLoad.jwtProcess.refresh ] - token from is :',
+        body ].join(''));
+
+      } else {
+        // forbidden state
+        if (!_.isUndefined(response) && response.statusCode === 403) {
+          // log error message
+          this.logger.error([ '[ YoctoLoad.jwtProcess ] -',
+                              'Not allowed to access jwt ressource', error ].join(' '));
+        }
+
+        // log error message
+        this.logger.error([ '[ YoctoLoad.jwtProcess ] - Cannot set jwt token', error ].
+        join(' '));
+      }
+    }.bind(this));
+  }.bind(this);
+
+  // define interval of refresh
+  this.refreshTokenInterval = setInterval(refreshToken, this.config.config.jwt.refreshDelay);
+  // init current token
+  refreshToken();
 };
 
 // Default export

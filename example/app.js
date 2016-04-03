@@ -10,7 +10,7 @@ loadtest.initialize(path.normalize(process.cwd() + '/example/config')).then(func
   console.log('\n succes initialize : ');
 
   loadtest.start().then(function (value) {
-    console.log('\n succes start : ', utils.obj.inspect(value));
+  //  console.log('\n succes start : ', utils.obj.inspect(value));
   }).catch(function (error) {
     console.log('Error start : ', error);
   });

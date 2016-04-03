@@ -48,11 +48,12 @@
   },
   "homepage": "https://github.com/yoctore/yocto-load#readme",
   "dependencies": {
-    "async": "^2.0.0-rc.2",
+    "async": "^1.5.3",
     "joi": "^8.0.5",
     "loadtest": "^1.3.3",
     "lodash": "^4.7.0",
     "q": "^1.4.1",
+    "request": "^2.69.0",
     "yocto-config": "^1.6.9",
     "yocto-logger": "1.1.3",
     "yocto-utils": "^1.2.7"
