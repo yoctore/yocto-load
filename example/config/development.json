@@ -1,0 +1,46 @@
+{
+  "main" : {
+    "port"  : 3007,
+    "async" : false
+  },
+  "api"  : {
+    "protocol"  : "http",
+    "port"      : 8080,
+    "host"      : "localhost"
+  },
+  "jwt"     : {
+    "enable"  : false,
+    "key"     : "a8ba00db9f8f50e70d65a2d6f68473578aa02f113d9d82f87c8fe1be82e5b5ff",
+    "path"    : "/token/refresh"
+  },
+  "routes" : [
+    {
+      "enable"            : true,
+      "method"            : "get",
+      "path"              : "/account",
+      "timeout"           : 3000,
+      "headers"           : {},
+      "body"              : {},
+      "maxRequests"       : 300,
+      "maxSeconds"        : 15,
+      "concurency"        : 10,
+      "requestsPerSecond" : 100,
+      "cookies"           : [],
+      "contentType"       : "text/plain"
+    },
+    {
+      "enable"            : true,
+      "method"            : "get",
+      "path"              : "/card",
+      "timeout"           : 3000,
+      "headers"           : {},
+      "body"              : {},
+      "maxRequests"       : 300,
+      "maxSeconds"        : 15,
+      "concurency"        : 10,
+      "requestsPerSecond" : 100,
+      "cookies"           : [],
+      "contentType"       : "text/plain"
+    }
+  ]
+}
